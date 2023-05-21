@@ -22,7 +22,18 @@
                 @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
-            </div>           
+            </div> 
+            
+            @foreach($patientTypes as $patientType)
+                <div class="form-group col-4 mt-2">                
+                    <label for="{{ $patientType->code }}"><strong>{{ $patientType->code }}</strong> Price</label>
+                    <input type="hidden" name="patienttypeid[]" value="{{ $patientType->id }}">
+                    <input type="number" name="price[]" maxlength="100" id="{{$patientType->code}}" class="form-control @error('name') is-invalid @enderror" value="" required>
+                    @error('price[]')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror                
+                </div> 
+            @endforeach
 
             <button type="submit" class="btn btn-primary mt-2">Create</button>
         </form>

@@ -22,8 +22,7 @@
                 @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
-            </div>           
-
+            </div> 
             <button type="submit" class="btn btn-primary mt-2">Create</button>
         </form>
     </div>

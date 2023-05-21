@@ -13,7 +13,6 @@ class PatientTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        PatientType::truncate();
         $patientTypes = [
             [
                 'code' => 'GEN',
@@ -23,8 +22,16 @@ class PatientTypeSeeder extends Seeder
                 'code' => 'EHS',
                 'name' => 'Extended Health Service',
             ],
+            [
+                'code' => 'FRG',
+                'name' => 'FOREIGNER',
+            ],
         ];
 
-        PatientType::insert($patientTypes);
+        foreach ($patientTypes as  $patientType) {
+            PatientType::firstOrCreate($patientType);
+        }
+
+        
     }
 }

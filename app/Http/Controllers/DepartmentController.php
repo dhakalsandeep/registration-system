@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\DepartmentWiseCharge;
+use App\Models\PatientType;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
@@ -21,7 +23,8 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        return view('departments.create');
+        $patientTypes = PatientType::all();
+        return view('departments.create', compact('patientTypes'));
     }
 
     /**
@@ -29,10 +32,25 @@ class DepartmentController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $department = new Department;
         $department->code = $request->code;
         $department->name = $request->name;
         $department->save();
+
+        $patientTypeIds = $request->patienttypeid;
+        $prices = $request->price;
+
+        foreach ($patientTypeIds as $key => $patientTypeId) {
+            if ($prices[$key] >= 0) {
+                $departmentWiseCharge = new DepartmentWiseCharge();
+
+                $departmentWiseCharge->department_id = $department->id;
+                $departmentWiseCharge->patient_type_id = $patientTypeId;
+                $departmentWiseCharge->price = $prices[$key];
+                $departmentWiseCharge->save();
+            }
+        }
 
         return redirect()->route('departments.index');
     }
