@@ -13,6 +13,7 @@ class PatientTypeSeeder extends Seeder
      */
     public function run(): void
     {
+        PatientType::truncate();
         $patientTypes = [
             [
                 'code' => 'GEN',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PatientTypeController;
 use App\Models\PatientType;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,10 @@ Route::get('/', function () {
 
 Route::get('/patient-types', [PatientTypeController::class, 'index'])->name('patient_type.index');
 Route::get('/patient-types/create', [PatientTypeController::class, 'create'])->name('patient_type.create');
+Route::post('/patient-types', [PatientTypeController::class, 'store'])->name('patient_type.store');
+Route::get('/patient-types/{patienttypeid}', [PatientTypeController::class, 'show'])->name('patient_type.show');
+Route::get('/patient-types/{patienttypeid}/edit', [PatientTypeController::class, 'edit'])->name('patient_type.edit');
+Route::put('/patient-types/{patienttypeid}', [PatientTypeController::class, 'update'])->name('patient_type.update');
+Route::delete('/patient-types/{patienttypeid}', [PatientTypeController::class, 'destroy'])->name('patient_type.destroy');
+
+Route::resource('departments', DepartmentController::class);

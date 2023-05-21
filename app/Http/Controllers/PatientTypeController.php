@@ -29,7 +29,13 @@ class PatientTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $patientType = new PatientType();
+        $patientType->code = $request->code;
+        $patientType->name = $request->name;
+        $patientType->save();
+
+        return redirect()->route('patient_type.index');
     }
 
     /**
@@ -37,7 +43,9 @@ class PatientTypeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $patientType = PatientType::findOrFail($id);
+
+        return view('patient_type.show', compact('patientType'));
     }
 
     /**
@@ -45,7 +53,9 @@ class PatientTypeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $patientType = PatientType::find($id);
+        
+        return view('patient_type.edit', compact('patientType')); 
     }
 
     /**
@@ -53,7 +63,12 @@ class PatientTypeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $patientType = PatientType::find($id);
+        $patientType->code = $request->code;
+        $patientType->name = $request->name;
+        $patientType->save();
+
+        return redirect()->route('patient_type.index');
     }
 
     /**
@@ -61,6 +76,10 @@ class PatientTypeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $patientType = PatientType::find($id);
+        
+        $patientType->delete();
+
+        return redirect()->route('patient_type.index');
     }
 }

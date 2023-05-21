@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>Create Patient Type</h1>
+<h1>Create Department</h1>
 
 <div class="container">
     <div class="row">
-        <form action="{{ route('patient_type.store') }}" method="POST">
+        <form action="{{ route('departments.store') }}" method="POST">
             @csrf
 
             <div class="form-group col-4 mt-2">
