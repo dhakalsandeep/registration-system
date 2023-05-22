@@ -71,7 +71,9 @@ class DepartmentController extends Controller
      */
     public function edit(string $id)
     {
-        $department = Department::find($id);
+        $department = Department::with('departmentWiseCharge', 'departmentWiseCharge.patientType')
+            ->where('id', $id)
+            ->first();
 
         return view('departments.edit', compact('department'));
     }
@@ -81,10 +83,20 @@ class DepartmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // dd($request->all());
         $department = Department::find($id);
         $department->code = $request->code;
         $department->name = $request->name;
         $department->save();
+
+        $departmentWiseChargeIds = $request->departmentwisechargeid;
+        $prices = $request->price;
+
+        foreach ($departmentWiseChargeIds as $key => $departmentWiseChargeId) {
+            $departmentWiseCharge = DepartmentWiseCharge::find($departmentWiseChargeId);
+            $departmentWiseCharge->price = $prices[$key];
+            $departmentWiseCharge->save();
+        }
 
         return redirect()->route('departments.index');
     }

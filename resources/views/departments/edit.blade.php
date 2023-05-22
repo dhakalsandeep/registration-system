@@ -24,6 +24,18 @@
                 @enderror
             </div>
 
+            @foreach($department->departmentWiseCharge as $departmentWiseCharge)
+                <div class="form-group col-4 mt-2">                
+                    <label for="{{ $departmentWiseCharge->patientType->code }}"><strong>{{ $departmentWiseCharge->patientType->code }}</strong> Price</label>
+                    <input type="hidden" name="departmentwisechargeid[]" value="{{ $departmentWiseCharge->id }}">
+                    <input type="number" name="price[]" maxlength="100" class="form-control @error('name') is-invalid @enderror" 
+                    value="{{ $departmentWiseCharge->price }}" required>
+                    @error('price[]')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror                
+                </div> 
+            @endforeach
+
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>
