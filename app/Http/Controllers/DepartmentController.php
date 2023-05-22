@@ -15,7 +15,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $departments = Department::with('departmentWiseCharge', 'departmentWiseCharge.patientType')
-            ->get();
+            ->orderBy('name')->get();
         return view('departments.index', compact('departments'));
     }
 
