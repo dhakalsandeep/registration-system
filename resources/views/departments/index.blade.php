@@ -15,6 +15,7 @@
                 <th>Sn</th>
                 <th>Code</th>
                 <th>Name</th>
+                <th>Charge</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -22,8 +23,13 @@
             @foreach ($departments as $department)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $department->code }}</td>
+                <td>{{ $department->code }}</td>                
                 <td>{{ $department->name }}</td>
+                <td>
+                    @foreach ($department->departmentWiseCharge as $departmentWiseCharge)
+                        {{ $departmentWiseCharge->patientType->code }} - {{ $departmentWiseCharge->price }} <br>    
+                    @endforeach
+                </td>
                 <td>
                     <a href="{{ route('departments.show', $department->id) }}" class="btn btn-info">View</a>
                     <a href="{{ route('departments.edit', $department->id) }}" class="btn btn-warning">Edit</a>
