@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\DepartmentWiseCharge;
 use App\Models\PatientType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
@@ -71,11 +72,22 @@ class DepartmentController extends Controller
      */
     public function edit(string $id)
     {
-        $department = Department::with('departmentWiseCharge', 'departmentWiseCharge.patientType')
-            ->where('id', $id)
-            ->first();
+        $department = Department::find($id);
 
-        return view('departments.edit', compact('department'));
+        $depWiseCharges = PatientType::from('patient_types as p')
+            ->leftJoin('department_wise_charges as dwc', [
+                ['p.id', '=', 'dwc.patient_type_id'],
+                ['dwc.department_id', '=', $id]
+            ])
+            ->leftJoin('departments as d', ['dwc.department_id' => 'd.id', 'd.id' => $id])
+            ->select('p.*', 'dwc.id as dep_wise_charge_id', 'dwc.price')
+            ->get();
+
+        // dd($depWiseCharges);
+        // dd($depWiseCharge);
+
+
+        return view('departments.edit', compact('department', 'depWiseCharges'));
     }
 
     /**
@@ -90,12 +102,18 @@ class DepartmentController extends Controller
         $department->save();
 
         $departmentWiseChargeIds = $request->departmentwisechargeid;
+        $patientTypeIds = $request->patienttypeid;
         $prices = $request->price;
 
-        foreach ($departmentWiseChargeIds as $key => $departmentWiseChargeId) {
-            $departmentWiseCharge = DepartmentWiseCharge::find($departmentWiseChargeId);
-            $departmentWiseCharge->price = $prices[$key];
-            $departmentWiseCharge->save();
+        foreach ($patientTypeIds as $key => $patientTypeId) {
+            DepartmentWiseCharge::updateOrCreate(
+                ['id' => $departmentWiseChargeIds[$key]],
+                [
+                    'department_id' => $department->id,
+                    'patient_type_id' => $patientTypeId,
+                    'price' => $prices[$key]
+                ]
+            );
         }
 
         return redirect()->route('departments.index');

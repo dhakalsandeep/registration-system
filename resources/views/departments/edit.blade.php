@@ -24,12 +24,13 @@
                 @enderror
             </div>
 
-            @foreach($department->departmentWiseCharge as $departmentWiseCharge)
+            @foreach($depWiseCharges as $depWiseCharge)
                 <div class="form-group col-4 mt-2">                
-                    <label for="{{ $departmentWiseCharge->patientType->code }}"><strong>{{ $departmentWiseCharge->patientType->code }}</strong> Price</label>
-                    <input type="hidden" name="departmentwisechargeid[]" value="{{ $departmentWiseCharge->id }}">
-                    <input type="number" name="price[]" maxlength="100" class="form-control @error('name') is-invalid @enderror" 
-                    value="{{ $departmentWiseCharge->price }}" required>
+                    <label for="{{ $depWiseCharge->code }}"><strong>{{ $depWiseCharge->code }}</strong> Price</label>
+                    <input type="hidden" name="departmentwisechargeid[]" value="{{ $depWiseCharge->dep_wise_charge_id }}">
+                    <input type="hidden" name="patienttypeid[]" value="{{ $depWiseCharge->id }}">
+                    <input type="number" name="price[]" maxlength="100" class="form-control @error('price[]') is-invalid @enderror" 
+                    value="{{ $depWiseCharge->price }}" required>
                     @error('price[]')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror                
