@@ -113,6 +113,7 @@ class DepartmentController extends Controller
                 DepartmentWiseCharge::updateOrCreate(
                     ['id' => $departmentWiseChargeId],
                     [
+                        'department_id' => $department->id,
                         'patient_type_id' => $patientTypeIds[$key],
                         'price' => $prices[$key],
                     ]
