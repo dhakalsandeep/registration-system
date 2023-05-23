@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\DepartmentWiseCharge;
 use App\Models\PatientType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
@@ -75,7 +76,21 @@ class DepartmentController extends Controller
             ->where('id', $id)
             ->first();
 
-        return view('departments.edit', compact('department'));
+        // DB::enableQueryLog();
+        $departmentWiseCharges = PatientType::from('patient_types as p')->leftJoin(
+            'department_wise_charges as dwc', function ($join) use ($id) {
+                $join->on('p.id', '=', 'dwc.patient_type_id')
+                    ->where('dwc.department_id', '=', $id);
+            })
+            ->select('p.id as patient_type_id','p.code','p.name','dwc.id','dwc.price')
+            ->get();
+
+        // $query = DB::getQueryLog();
+        // dd($query);
+
+        // dd($departmentWiseCharge);
+
+        return view('departments.edit', compact('department','departmentWiseCharges'));
     }
 
     /**
@@ -90,12 +105,19 @@ class DepartmentController extends Controller
         $department->save();
 
         $departmentWiseChargeIds = $request->departmentwisechargeid;
+        $patientTypeIds = $request->patienttypeid;
         $prices = $request->price;
 
         foreach ($departmentWiseChargeIds as $key => $departmentWiseChargeId) {
-            $departmentWiseCharge = DepartmentWiseCharge::find($departmentWiseChargeId);
-            $departmentWiseCharge->price = $prices[$key];
-            $departmentWiseCharge->save();
+            if ($prices[$key]) {
+                DepartmentWiseCharge::updateOrCreate(
+                    ['id' => $departmentWiseChargeId],
+                    [
+                        'patient_type_id' => $patientTypeIds[$key],
+                        'price' => $prices[$key],
+                    ]
+                );
+            }
         }
 
         return redirect()->route('departments.index');

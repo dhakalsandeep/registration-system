@@ -9,6 +9,8 @@ class DepartmentWiseCharge extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function patientType()
     {
         return $this->belongsTo(PatientType::class);
