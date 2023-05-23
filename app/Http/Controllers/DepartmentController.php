@@ -110,14 +110,11 @@ class DepartmentController extends Controller
 
         foreach ($departmentWiseChargeIds as $key => $departmentWiseChargeId) {
             if ($prices[$key]) {
-                DepartmentWiseCharge::updateOrCreate(
-                    ['id' => $departmentWiseChargeId],
-                    [
-                        'department_id' => $department->id,
-                        'patient_type_id' => $patientTypeIds[$key],
-                        'price' => $prices[$key],
-                    ]
-                );
+                $depWiseCharge = $departmentWiseChargeId ? DepartmentWiseCharge::find($departmentWiseChargeId) : new DepartmentWiseCharge();
+                $depWiseCharge->department_id = $department->id; 
+                $depWiseCharge->patient_type_id = $patientTypeIds[$key]; 
+                $depWiseCharge->price = $prices[$key];
+                $depWiseCharge->save();                
             }
         }
 
@@ -131,7 +128,11 @@ class DepartmentController extends Controller
     {
         $department = Department::find($id);
 
+        
+        $department->departmentWiseCharge()->delete();
+        
         $department->delete();
+
 
         return redirect()->route('departments.index');
     }
