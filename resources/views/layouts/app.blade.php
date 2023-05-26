@@ -17,6 +17,7 @@
     <div class="row">
       <div class="col-2"><a href="{{ route('patient_type.index') }}">Patient Type</a></div>
       <div class="col-2"><a href="{{ route('departments.index') }}">Department</a></div>
+      <div class="col-2"><a href="{{ route('patients.index') }}">Patient</a></div>
     </div>
   </div>
 

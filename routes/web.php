@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientTypeController;
 use App\Models\PatientType;
 use Illuminate\Support\Facades\Route;
@@ -29,3 +30,5 @@ Route::put('/patient-types/{patienttypeid}', [PatientTypeController::class, 'upd
 Route::delete('/patient-types/{patienttypeid}', [PatientTypeController::class, 'destroy'])->name('patient_type.destroy');
 
 Route::resource('departments', DepartmentController::class);
+
+Route::resource('patients', PatientController::class);
