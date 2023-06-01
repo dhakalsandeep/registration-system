@@ -33,6 +33,6 @@ Route::delete('/patient-types/{patienttypeid}', [PatientTypeController::class, '
 Route::resource('departments', DepartmentController::class);
 
 Route::resource('patients', PatientController::class);
-Route::get('/patients/get_department_wise_charge', [PatientController::class, 'getDepartmentWiseCharge'])->name('patients.get_department_wise_charge');
+Route::post('/patients/get_department_wise_charge', [PatientController::class, 'getDepartmentWiseCharge'])->name('patients.get_department_wise_charge');
 Route::get('/patients/visit', [PatientController::class, 'createVisit'])->name('patients.create_visit');
 Route::post('/patients/visit', [PatientController::class, 'storeVisit'])->name('patients.store_visit');

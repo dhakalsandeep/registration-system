@@ -1,12 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
-        .uploaded-image {
-            height: 200px;
-            width: 200px;
-        }
-    </style>
+    @push('css')
+        <style>
+            .uploaded-image {
+                height: 200px;
+                width: 200px;
+            }
+        </style>
+    @endpush
 
 
     <h1>Register New Patient</h1>
@@ -24,7 +26,9 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
 
+            <div class="row">
                 <div class="form-group col-4 mt-2">
                     <label for="department">Department</label>
                     <select class="form-control" name="department" id="department">
@@ -38,11 +42,16 @@
                 <div class="form-group col-4 mt-2">
                     <label for="department">Patient Type</label>
                     <select class="form-control" name="patient_type" id="patient_type">
-                        <option value="0">Please Select Patient</option>
+                        <option value="0">Please Select Patient Type</option>
                         @foreach ($patientTypes as $patientType)
                             <option value="{{ $patientType->id }}">{{ $patientType->name }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="form-group col-4 mt-2">
+                    <label for="charge">Charge</label>
+                    <input type="text" class="form-control" id="charge" value="0" readonly>
                 </div>
 
                 <div class="form-group col-4 mt-2">
@@ -124,62 +133,64 @@
                 <button type="submit" class="btn btn-primary mt-2">Create</button>
             </div>
         </form>
-
     </div>
 
-    <script>
-        const fileInput = document.getElementById('profilepic');
-        const selectedFileDiv = document.getElementById('selected-file');
+    @push('script')
+        <script>
+            const fileInput = document.querySelector('#profilepic');
+            const selectedFileDiv = document.querySelector('#selected-file');
+            const departmentSelect = document.querySelector('#department');
+            const patientTypeSelect = document.querySelector('#patient_type');
+            const chargeInput = document.querySelector('#charge');
 
-        fileInput.addEventListener('change', function() {
-            const file = fileInput.files[0];
+            fileInput.addEventListener('change', function() {
+                const file = fileInput.files[0];
 
-            if (file) {
-                const fileReader = new FileReader();
+                if (file) {
+                    const fileReader = new FileReader();
 
-                fileReader.addEventListener('load', function() {
-                    const image = new Image();
-                    image.src = fileReader.result;
-                    image.classList.add('uploaded-image');
+                    fileReader.addEventListener('load', function() {
+                        const image = new Image();
+                        image.src = fileReader.result;
+                        image.classList.add('uploaded-image');
 
-                    selectedFileDiv.innerHTML = '';
-                    selectedFileDiv.appendChild(image);
-                });
+                        selectedFileDiv.innerHTML = '';
+                        selectedFileDiv.appendChild(image);
+                    });
 
-                fileReader.readAsDataURL(file);
-            } else {
-                selectedFileDiv.innerHTML = 'No file selected';
+                    fileReader.readAsDataURL(file);
+                } else {
+                    selectedFileDiv.innerHTML = 'No file selected';
+                }
+            });
+
+            const getDepartmentWiseCharge = () => {
+                let department = departmentSelect.value;
+                let patientType = patientTypeSelect.value;
+
+                console.log('am i here', department, patientType);
+
+                if (department == 0 || patientType == 0) return;
+
+                let param = {
+                    department,
+                    patientType
+                };
+
+                axios.post(`{{ route('patients.get_department_wise_charge') }}`, param)
+                    .then(function(response) {
+                        chargeInput.value = response.data.charge;
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
+                    .finally(function() {
+                        console.log('async await finally completed');
+                    });
             }
-        });
 
-        const loadDepartmentWiseCharge = () => {
-            let department = departmentSelect.value;
-            let patientType = patientTypeSelect.value;
-            console.log('hello bro', department, patientType);
-
-            if (department == 0 || patientType == 0) return;
-
-            axios.get("{{ route('patients.get_department_wise_charge') }}", {
-                    params: {
-                        department,
-                        patientType
-                    }
-                })
-                .then(function(response) {
-                    console.log(response);
-                })
-                .catch(function(error) {
-                    console.log(error);
-                })
-                .finally(function() {
-                    // always executed
-                });
-        }
-
-        const departmentSelect = document.querySelector('#department');
-        const patientTypeSelect = document.querySelector('#patient_type');
-
-        departmentSelect.addEventListener('change', loadDepartmentWiseCharge);
-        patientTypeSelect.addEventListener('change', loadDepartmentWiseCharge);
-    </script>
+            departmentSelect.addEventListener('change', getDepartmentWiseCharge);
+            patientTypeSelect.addEventListener('change', getDepartmentWiseCharge);
+        </script>
+    @endpush
 @endsection

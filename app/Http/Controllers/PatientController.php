@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\DepartmentWiseCharge;
+use App\Models\Invoice;
 use App\Models\Patient;
 use App\Models\PatientType;
+use App\Models\Visit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -27,9 +30,9 @@ class PatientController extends Controller
     public function create()
     {
         $hospitalNo = $this->getNewHospitalNo();
-        $departments = Department::all();
-        $patientTypes = PatientType::all();
-        return view('patients.create', compact('hospitalNo','departments', 'patientTypes'));
+        $departments = Department::all(['id', 'name']);
+        $patientTypes = PatientType::all('id', 'name');
+        return view('patients.create', compact('hospitalNo', 'departments', 'patientTypes'));
     }
 
     public function getNewHospitalNo() {
@@ -44,11 +47,38 @@ class PatientController extends Controller
         return $newHospitalNo;
     }
 
+    public function generateInvoiceNo() {
+        $year = substr(date('Y'), 2, 2);
+        $month = now()->month;
+        if ($month < 4) {
+            $fiscalYear = ($year-1).'/'.($year);
+        }
+        else {
+            $fiscalYear = ($year).'/'.($year+1);
+        }
+
+        $prefix = $fiscalYear.'-';
+
+        $maxInvoiceNo = Invoice::where('invoice_no', 'like', "{$prefix}%")
+            ->max('invoice_no') ?? '0-0';
+        
+        $maxInvoiceNo = explode('-', $maxInvoiceNo);
+
+        $maxInvoiceNo = $maxInvoiceNo[1] + 1;
+
+        $newInvoiceNo = $prefix.str_pad($maxInvoiceNo, 8, '0', STR_PAD_LEFT);
+        
+        return $newInvoiceNo;
+    }
+
+
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $patient = new Patient;
         $patient->title = $request->title;
         $patient->first_name = $request->firstname;
@@ -67,6 +97,24 @@ class PatientController extends Controller
             $patient->profile_pic_path = substr($path, 7, strlen($path));
             $patient->save();
         }
+
+        $visit = new Visit;
+        $visit->patient_type_id = $request->patient_type;
+        $visit->department_id = $request->department;
+        $visit->hospital_no = $patient->hospital_no;
+        $visit->visit_date = now()->toDateString();
+        $visit->visit_time = now()->toTimeString();
+        $visit->save();
+
+        $invoice = new Invoice;
+        $invoice->visit_id = $visit->id;
+        $invoice->patient_id = $patient->id;
+        $invoice->hospital_no = $patient->hospital_no;
+        $invoice->prefix = 'CS';
+        $invoice->invoice_no = $this->generateInvoiceNo();
+        $invoice->amount = $this->getChargeAmount($request->department, $request->patient_type);
+        $invoice->save();
+
         return redirect()->route('patients.index');
     }
 
@@ -102,8 +150,21 @@ class PatientController extends Controller
         //
     }
 
-    
-    public function getDepartmentWiseCharge(Request $request) {
-        return response()->json(['data' => 'hello bro']);
+
+    public function getDepartmentWiseCharge(Request $request)
+    {
+        $charge = $this->getChargeAmount($request->department, $request->patientType);
+
+        return response()->json(['charge' => $charge]);
     }
+
+    public function getChargeAmount($departmentId, $patientTypeId)
+    {
+        return DepartmentWiseCharge::where([
+            'department_id' => $departmentId,
+            'patient_type_id' => $patientTypeId,
+        ])->first()->price ?? 0;
+    }
+
+    
 }

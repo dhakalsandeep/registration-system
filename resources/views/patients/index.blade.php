@@ -4,7 +4,7 @@
 
 <style>
     .profile-pic {
-        height: 100px;
+        height: 80px;
         width: 100px;
     }
 </style>
